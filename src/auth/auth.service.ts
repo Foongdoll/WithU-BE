@@ -61,19 +61,7 @@ export class AuthService {
       role,
     });
 
-    // 4) 파트너가 지정된 경우 조회 후 관계 설정
-    if (signupDto.partnerId) {
-      const partner = await this.userRepository.findOneBy({
-        userCd: signupDto.partnerId,
-      });
-      if (!partner) {
-        return { success: false, message: '파트너 정보가 존재하지 않습니다.' };
-      }
-      user.partner = partner;               // this side(소유자)에 설정
-      // partner.partner = user;            // 옵션: 양쪽 관계를 잇고 싶다면 설정
-    }
-
-    // 5) 저장
+    // 4) 저장
     await this.userRepository.save(user);
 
     return { success: true, message: '회원가입 성공' };

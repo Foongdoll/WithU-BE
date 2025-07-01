@@ -16,9 +16,6 @@ export class SignupDto {
   @IsString()
   @IsNotEmpty()
   age: string;
-
-  @IsString()
-  partnerId?: number;  // 선택적 파트너 ID
 }
 
 export class LoginDto {
