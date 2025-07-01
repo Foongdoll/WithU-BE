@@ -2,16 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { LoginDto, SignupDto } from './dto/Auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entity/User';
-import { JwtService } from 'src/common/jwt/JwtService';
+import { User } from './entity/user.entity';
+import { JwtService } from '../../src/common/jwt/JwtService';
 import * as bcrypt from 'bcrypt';
-import { Role } from './entity/Role';
+import { Role } from './entity/role.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Role)
     private roleRepository: Repository<Role>,
     private jwtService: JwtService,
   ) { }
@@ -32,20 +33,26 @@ export class AuthService {
     }
 
     const token = this.jwtService.sign({
-      role: user.role.roleNm,
+      role: user.role.roleName,
       userCd: user.userCd,
       userName: user.userName,
     });
 
-    return { success: true, message: '로그인되셨습니다.', data: {jwt : token}}
+    return { success: true, message: '로그인되셨습니다.', data: { jwt: token } }
   }
 
   async signup(signupDto: SignupDto) {
+    // 1) 비밀번호 해시
     const hashedPw = await bcrypt.hash(signupDto.pw, 10);
 
-    // roleName이 'USER'인 Role 찾기
-    const role = await this.roleRepository.findOneBy({ roleName: 'USER' });
+    // 2) ROLE 조회/생성
+    let role = await this.roleRepository.findOneBy({ roleName: 'USER' });
+    if (!role) {
+      role = this.roleRepository.create({ roleName: 'USER' });
+      await this.roleRepository.save(role);
+    }
 
+    // 3) 기본 유저 생성 (파트너 미설정)
     const user = this.userRepository.create({
       userId: signupDto.id,
       userPw: hashedPw,
@@ -53,6 +60,22 @@ export class AuthService {
       userAge: signupDto.age,
       role,
     });
+
+    // 4) 파트너가 지정된 경우 조회 후 관계 설정
+    if (signupDto.partnerId) {
+      const partner = await this.userRepository.findOneBy({
+        userCd: signupDto.partnerId,
+      });
+      if (!partner) {
+        return { success: false, message: '파트너 정보가 존재하지 않습니다.' };
+      }
+      user.partner = partner;               // this side(소유자)에 설정
+      // partner.partner = user;            // 옵션: 양쪽 관계를 잇고 싶다면 설정
+    }
+
+    // 5) 저장
     await this.userRepository.save(user);
+
     return { success: true, message: '회원가입 성공' };
   }
+}

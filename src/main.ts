@@ -8,8 +8,10 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:5173',
-    Credential: true,
-  })
+    credentials: true,
+  });
+  
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,5 +22,6 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter);
 
   await app.listen(process.env.PORT ?? 3000);
+  console.log("Restarting due to changes...")
 }
 bootstrap();

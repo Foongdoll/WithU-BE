@@ -5,6 +5,14 @@ import * as jwt from 'jsonwebtoken';
 @Injectable()
 export class JwtFilter implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
+    // 요청 메서드, 경로, 데이터 로그 출력
+    console.log(`[${req.method}] ${req.originalUrl}`);
+    if (req.method === 'GET') {
+      console.log('Query:', req.query);
+    } else {
+      console.log('Body:', req.body);
+    }
+
     // '/u/'가 경로에 포함된 경우만 JWT 검증
     if (/\/u\//.test(req.path)) {
       const authHeader = req.headers['authorization'];

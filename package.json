@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "ts-node src/main.ts",
-    "start:dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/main.ts"
+    "d": "nodemon --watch 'src/**/*.ts' --exec ts-node src/main.ts"
   },
   "dependencies": {
     "@nestjs/config": "^4.0.2",
