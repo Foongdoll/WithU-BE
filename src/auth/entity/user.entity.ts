@@ -28,7 +28,7 @@ export class User extends BaseEntity{
    * partnerId 컬럼이 생성됩니다.
    */
   @OneToOne(() => User, (user) => user.partner, { nullable: true })
-  @JoinColumn({ name: 'partnerId' })
+  @JoinColumn({ name: 'partnerCd' })
   partner: User;
 
 }

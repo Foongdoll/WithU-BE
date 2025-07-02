@@ -28,7 +28,7 @@ export class CalendarService {
       endDate: this.formatDateToLocal(savedEvent.endDate),
     };
     
-    return { success: true, message: '일정이 추가되었습니다.', data: normalizedEvent };
+    return { success: true, message: '일정이 추가되었습니다.', data: normalizedEvent, type: 'info' };
   }
 
   async getEvents(userId: number, query: CalendarEventQueryDto): Promise<any> {
@@ -61,7 +61,7 @@ export class CalendarService {
     console.log('원본 events:', events);
     console.log('정규화된 events:', normalizedEvents);
 
-    return { success: true, message: '일정 조회 완료', data: normalizedEvents };
+    return { success: true, data: normalizedEvents };
   }
 
   // 날짜를 로컬 시간대 문자열로 변환하는 헬퍼 메서드
@@ -84,7 +84,7 @@ export class CalendarService {
     });
 
     if (!event) {
-      return { success: false, message: '일정을 찾을 수 없습니다.' };
+      return { success: false, message: '일정을 찾을 수 없습니다.', type: 'error' };
     }
 
     // 시간대 변환 처리
@@ -94,7 +94,7 @@ export class CalendarService {
       endDate: this.formatDateToLocal(event.endDate),
     };
 
-    return { success: true, message: '일정 조회 완료', data: normalizedEvent };
+    return { success: true, data: normalizedEvent };
   }
 
   async updateEvent(id: number, updateEventDto: UpdateCalendarEventDto, userId: number): Promise<any> {
@@ -113,8 +113,8 @@ export class CalendarService {
 
     await this.calendarEventRepository.update(id, updateData);
     const updatedEvent = await this.getEventById(id, userId);
-    
-    return { success: true, message: '일정이 수정되었습니다.', data: updatedEvent.data };
+
+    return { success: true, message: '일정이 수정되었습니다.', data: updatedEvent.data, type: 'info' };
   }
 
   async deleteEvent(id: number, userId: number): Promise<any> {
@@ -124,7 +124,7 @@ export class CalendarService {
     }
 
     await this.calendarEventRepository.remove(eventResult.data);
-    return { success: true, message: '일정이 삭제되었습니다.' };
+    return { success: true, message: '일정이 삭제되었습니다.', type: 'info' };
   }
 
   async getEventsByMonth(userId: number, year: number, month: number): Promise<any> {
@@ -148,7 +148,7 @@ export class CalendarService {
       endDate: this.formatDateToLocal(event.endDate),
     }));
 
-    return { success: true, message: '월별 일정 조회 완료', data: normalizedEvents };
+    return { success: true, data: normalizedEvents };
   }
 
   async getUpcomingEvents(userId: number, limit: number = 5): Promise<any> {
@@ -172,6 +172,6 @@ export class CalendarService {
       endDate: this.formatDateToLocal(event.endDate),
     }));
 
-    return { success: true, message: '다가오는 일정 조회 완료', data: normalizedEvents };
+    return { success: true, data: normalizedEvents };
   }
 }

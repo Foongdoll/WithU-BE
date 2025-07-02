@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { ChatGateway } from './chat/chat.gateway';
+import { ChatModule } from './chat/chat.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from './common/jwt/JwtModule';
@@ -12,6 +12,7 @@ import { JwtFilter } from './common/jwt/JwtFilter';
 @Module({
   imports: [
     AuthModule,
+    ChatModule,
     JwtModule,
     ConfigModule.forRoot({
       isGlobal: true, // 전체에서 사용 가능
@@ -29,7 +30,7 @@ import { JwtFilter } from './common/jwt/JwtFilter';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, ChatGateway],
+  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

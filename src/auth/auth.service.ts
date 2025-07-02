@@ -6,6 +6,7 @@ import { User } from './entity/user.entity';
 import { JwtService } from '../../src/common/jwt/JwtService';
 import * as bcrypt from 'bcrypt';
 import { Role } from './entity/role.entity';
+import { PartnerRequest, PartnerRequestStatus } from './entity/partner.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,8 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
+    @InjectRepository(PartnerRequest)
+    private partnerRepository: Repository<PartnerRequest>,
     private jwtService: JwtService,
   ) { }
 
@@ -64,6 +67,130 @@ export class AuthService {
     // 4) 저장
     await this.userRepository.save(user);
 
-    return { success: true, message: '회원가입 성공' };
+    return { success: true, message: '회원가입 성공', type: 'info' };
+  }
+
+
+
+  async addPartner(partnerCd: number, myCd: number) {
+    // 1) 내 ID 조회
+    const user = await this.userRepository.findOne({
+      where: { userCd: myCd },
+    });
+
+    if (!user) {
+      return { success: false, message: '사용자를 찾을 수 없습니다.', type: 'warning' };
+    }
+
+    const partner = await this.userRepository.findOne({
+      where: { userCd: partnerCd },
+    });
+
+    if (!partner) {
+      return { success: false, message: '파트너를 찾을 수 없습니다.', type: 'info' };
+    }
+
+    const existingMyRequest = await this.partnerRepository.findOne({
+      where: {
+        userCd: myCd,
+        partnerCd: partnerCd
+      }
+    })
+
+    if (existingMyRequest) {
+      return { success: false, message: '이미 상대방에게 요청을 했습니다.' };
+    }
+
+    const existingPartnerRequest = await this.partnerRepository.findOne({
+      where: {
+        userCd: partnerCd,
+        partnerCd: myCd
+      }
+    });
+
+    if (existingPartnerRequest) {
+      return { success: false, message: '상대방에게서 온 요청이 있습니다.', type: 'info' };
+    }
+
+    const partnerRequest = this.partnerRepository.create({
+      partnerCd: partnerCd,
+      userCd: myCd,
+      status: PartnerRequestStatus.PENDING
+    });
+
+    await this.partnerRepository.save(partnerRequest);
+    return { success: true, message: '파트너가 추가되었습니다.', type: 'info' };
+  }
+
+  async acceptPartnerRequest(requestCd: number) {
+    const request = await this.partnerRepository.findOne({
+      where: { requestCd },
+      relations: ['user', 'partner']
+    });
+
+    if (!request) {
+      return { success: false, message: '파트너 요청을 찾을 수 없습니다.', type: 'warning' };
+    }
+
+    request.status = PartnerRequestStatus.ACCEPTED;
+    await this.partnerRepository.save(request);
+
+    return { success: true, message: '파트너 요청이 수락되었습니다.', type: 'info' };
+  }
+
+
+  async rejectPartnerRequest(requestCd: number) {
+    const request = await this.partnerRepository.findOne({
+      where: { requestCd },
+      relations: ['user', 'partner']
+    });
+
+    if (!request) {
+      return { success: false, message: '파트너 요청을 찾을 수 없습니다.', type: 'warning' };
+    }
+
+    request.status = PartnerRequestStatus.REJECTED;
+    await this.partnerRepository.save(request);
+
+    return { success: true, message: '파트너 요청이 거부되었습니다.', type: 'info' };
+  }
+
+  async getPartnerRequests(userCd: number) {
+    const requests = await this.partnerRepository.find({
+      where: { partnerCd: userCd }, // 내가 받은 요청들
+      relations: ['user'], // 요청을 보낸 사용자 정보
+      order: { createdAt: 'DESC' }
+    });
+    return { success: true, data: requests };
+  }
+
+  async getSentRequests(userCd: number) {
+    const requests = await this.partnerRepository.find({
+      where: { userCd: userCd },
+      relations: ['user', 'partner']
+    });
+
+    return { success: true, data: requests };
+  }
+
+
+  async getPartnerRoom(userCd: number) {
+    const room = await this.partnerRepository.findOne({
+      where: { userCd: userCd, status: PartnerRequestStatus.ACCEPTED },
+      relations: ['user', 'partner']
+    });
+
+    if (!room) {
+      const r = await this.partnerRepository.findOne({
+        where: { partnerCd: userCd, status: PartnerRequestStatus.ACCEPTED },
+        relations: ['user', 'partner']
+      });
+      if (!r) {
+        return { success: false, message: '파트너 룸을 찾을 수 없습니다.', type: 'warning' };
+      }
+      return { success: true, data: r };
+    }
+
+    return { success: true, data: room };
   }
 }

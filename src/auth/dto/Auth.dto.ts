@@ -27,3 +27,11 @@ export class LoginDto {
   @IsNotEmpty()
   pw: string;
 }
+
+
+export class PartnerAddDto {
+  
+  @IsNotEmpty()
+  partnerCd: number;
+  
+}
