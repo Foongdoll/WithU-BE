@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { AuthRequest } from '../interfaces/auth-request.interface';
 
 @Injectable()
 export class JwtFilter implements NestMiddleware {
@@ -17,15 +18,15 @@ export class JwtFilter implements NestMiddleware {
     if (/\/u\//.test(req.path)) {
       const authHeader = req.headers['authorization'];
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new UnauthorizedException('Authorization header missing or malformed');
+        throw new UnauthorizedException('인증 헤더가 없습니다');
       }
       const token = authHeader.split(' ')[1];
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        (req as any).user = decoded;
+        (req as AuthRequest).user = decoded as AuthRequest['user'];
         next();
       } catch (err) {
-        throw new UnauthorizedException('Invalid or expired JWT');
+        throw new UnauthorizedException('토큰이 유효하지 않거나 만료되었습니다');
       }
     } else {
       next();

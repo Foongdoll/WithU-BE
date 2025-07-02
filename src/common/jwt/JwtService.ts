@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 export class JwtService {
   private readonly secret = process.env.JWT_SECRET || 'your-secret-key';
 
-   sign(payload: { role: string; userCd: number; userName: string }, expiresIn: string = '1h'): string {
+  sign(payload: { role: string; userCd: number; userName: string }, expiresIn: string = '1h'): string {
     return jwt.sign(payload, this.secret, { expiresIn });
   }
 
