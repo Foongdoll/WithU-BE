@@ -98,7 +98,7 @@ export class ChatService {
       
       return ResponseDto.success(
         savedMessage,
-        '메시지를 성공적으로 보냈습니다.',
+        '',
         'MESSAGE_SENT'
       );
     } catch (error) {
@@ -242,7 +242,7 @@ export class ChatService {
 
       return ResponseDto.success(
         formattedReactions,
-        '감정 표현을 가져왔습니다.',
+        '',
         'MESSAGE_REACTIONS'
       );
     } catch (error) {
@@ -271,4 +271,6 @@ export class ChatService {
       return ResponseDto.error('메시지 읽음 처리에 실패했습니다.', 'MESSAGES_READ_ERROR');
     }
   }
+
+
 }

@@ -193,4 +193,17 @@ export class AuthService {
 
     return { success: true, data: room };
   }
+
+  async getPartnerUserInfo(userCd: number): Promise<User | null> {
+
+    const partner = await this.userRepository.findOne({
+      where: { userCd: userCd }
+    });
+
+    if (!partner) {
+      return null;
+    }
+    return partner;
+  }
+
 }

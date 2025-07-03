@@ -24,6 +24,7 @@ export class JwtFilter implements NestMiddleware {
         } else {
           console.log('Body: ', req.body, ' user: ', (req as AuthRequest).user);
         }
+        console.log("\n==========================\n")
         next();
       } catch (err) {
         throw new UnauthorizedException('토큰이 유효하지 않거나 만료되었습니다');

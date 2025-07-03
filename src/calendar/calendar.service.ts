@@ -58,9 +58,6 @@ export class CalendarService {
       endDate: this.formatDateToLocal(event.endDate),
     }));
 
-    console.log('원본 events:', events);
-    console.log('정규화된 events:', normalizedEvents);
-
     return { success: true, data: normalizedEvents };
   }
 
