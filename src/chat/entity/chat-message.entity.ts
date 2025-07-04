@@ -6,7 +6,8 @@ export enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',
   VIDEO = 'video',
-  EMOJI = 'emoji'
+  EMOJI = 'emoji',
+  IMAGES = 'images'
 }
 
 @Entity()
@@ -32,6 +33,9 @@ export class ChatMessage extends BaseEntity {
 
   @Column({ nullable: true })
   fileUrl?: string;
+
+  @Column({ type: 'text', nullable: true })
+  imageUrls?: string; // JSON 문자열로 저장
 
   @Column({ type: 'boolean', default: false })
   isRead: boolean;

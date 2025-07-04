@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsOptional, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsOptional, IsNumber, IsArray } from 'class-validator';
 import { MessageType } from '../entity/chat-message.entity';
 
 export class SendMessageDto {
@@ -16,6 +16,11 @@ export class SendMessageDto {
   @IsOptional()
   @IsString()
   fileUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  imageUrls?: string[];
 }
 
 export class AddReactionDto {

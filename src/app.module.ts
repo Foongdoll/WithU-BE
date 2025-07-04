@@ -8,6 +8,7 @@ import { CalendarModule } from './calendar/calendar.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from './common/jwt/JwtModule';
 import { JwtFilter } from './common/jwt/JwtFilter';
+import { LoggerServiceImpl } from './common/service/loggerService';
 
 @Module({
   imports: [

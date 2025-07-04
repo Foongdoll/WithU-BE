@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Param, Request, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Post, Body, Param, Request, UploadedFile, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ChatService } from './chat.service';
 import { SendMessageDto, AddReactionDto } from './dto/chat.dto';
 import { ResponseDto, ApiResponse } from '../common/dto/response.dto';
@@ -8,7 +8,7 @@ import { extname } from 'path';
 
 @Controller('u/chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService) { }
 
   // 파트너 룸 코드 가져오기
   @Post('partnerroom')
@@ -72,7 +72,7 @@ export class ChatController {
 
   // 파일 업로드 (이미지/비디오)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
+  @UseInterceptors(FilesInterceptor('files', 10, { // 최대 10개 파일
     storage: diskStorage({
       destination: './uploads/chat',
       filename: (req, file, cb) => {
@@ -81,7 +81,8 @@ export class ChatController {
       },
     }),
     limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
+      fileSize: 10 * 1024 * 1024, // 10MB per file
+      files: 10, // 최대 10개 파일
     },
     fileFilter: (req, file, cb) => {
       if (file.mimetype.match(/\/(jpg|jpeg|png|gif|mp4|mov|avi)$/)) {
@@ -91,22 +92,31 @@ export class ChatController {
       }
     },
   }))
-  async uploadFile(@UploadedFile() file: any): Promise<ApiResponse> {
+  async uploadMultipleFiles(@UploadedFiles() files: any[], @Request() req): Promise<ApiResponse> {
     try {
-      if (!file) {
+      if (!files || files.length === 0) {
         return ResponseDto.error('파일이 업로드되지 않았습니다.', 'FILE_UPLOAD_ERROR');
       }
 
+      // 서버 URL을 동적으로 생성
+      const protocol = req.protocol; // http 또는 https
+      const host = req.get('host'); // localhost:3000
+      const baseUrl = `${protocol}://${host}`;
+
+      const uploadedFiles = files.map(file => ({
+        fileUrl: `${baseUrl}/uploads/chat/${file.filename}`, // 절대 URL로 변경
+        originalName: file.originalname,
+        size: file.size,
+        mimeType: file.mimetype
+      }));
+
       return ResponseDto.success(
-        {
-          fileUrl: `/uploads/chat/${file.filename}`,
-          originalName: file.originalname,
-          size: file.size
-        },
-        '파일이 성공적으로 업로드되었습니다.',
-        'FILE_UPLOADED'
+        { files: uploadedFiles },
+        `${files.length}개의 파일이 성공적으로 업로드되었습니다.`,
+        'FILES_UPLOADED'
       );
     } catch (error) {
+      console.error('파일 업로드 실패:', error);
       return ResponseDto.error('파일 업로드에 실패했습니다.', 'FILE_UPLOAD_ERROR');
     }
   }

@@ -7,6 +7,7 @@ import { PartnerRequest, PartnerRequestStatus } from '../auth/entity/partner.ent
 import { User } from '../auth/entity/user.entity';
 import { SendMessageDto, AddReactionDto } from './dto/chat.dto';
 import { ResponseDto, ApiResponse } from '../common/dto/response.dto';
+import { LoggerEntity } from '../common/entity/logger.entity';
 
 @Injectable()
 export class ChatService {
@@ -19,7 +20,9 @@ export class ChatService {
     private partnerRequestRepository: Repository<PartnerRequest>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+    @InjectRepository(LoggerEntity)
+    private loggerRepository: Repository<LoggerEntity>,
+  ) { }
 
   // 파트너 룸 코드 가져오기 (ACCEPTED 상태의 요청에서)
   async getPartnerRoom(userCd: number): Promise<ApiResponse> {
@@ -46,11 +49,11 @@ export class ChatService {
     try {
       const partnerRequest = await this.partnerRequestRepository.findOne({
         where: [
-          { userCd, status: PartnerRequestStatus.ACCEPTED }, 
+          { userCd, status: PartnerRequestStatus.ACCEPTED },
           { partnerCd: userCd, status: PartnerRequestStatus.ACCEPTED }
         ],
         relations: ['user', 'partner']
-      });    
+      });
 
       if (!partnerRequest) {
         return ResponseDto.success(
@@ -61,16 +64,26 @@ export class ChatService {
       }
 
       // 현재 사용자가 요청을 보낸 경우 파트너 정보 반환, 받은 경우 요청자 정보 반환
-      const partner = partnerRequest.userCd === userCd 
-        ? partnerRequest.partner 
+      const partner = partnerRequest.userCd === userCd
+        ? partnerRequest.partner
         : partnerRequest.user;
-        
+
+      // 파트너의 마지막 로그인 시간 찾기
+      const lastLoginLog = await this.loggerRepository.findOne({
+        where: {
+          userCd: partner.userCd,
+          message: '로그인되셨습니다.'
+        },
+        order: { createdAt: 'DESC' }
+      });
+
       return ResponseDto.success(
         {
           partner: {
             userCd: partner.userCd,
             userName: partner.userName,
             roomId: partnerRequest.requestCd.toString(),
+            lastSeen: lastLoginLog ? lastLoginLog.createdAt : null,
             isOnline: false // 나중에 소켓으로 업데이트
           }
         },
@@ -78,6 +91,7 @@ export class ChatService {
         'PARTNER_INFO'
       );
     } catch (error) {
+      console.log(error)
       return ResponseDto.error('파트너 정보를 가져오는데 실패했습니다.', 'PARTNER_INFO_ERROR');
     }
   }
@@ -91,11 +105,12 @@ export class ChatService {
         content: sendMessageDto.content,
         type: sendMessageDto.type,
         fileUrl: sendMessageDto.fileUrl,
+        imageUrls: sendMessageDto.imageUrls ? JSON.stringify(sendMessageDto.imageUrls) : undefined,
         isRead: false
       });
 
       const savedMessage = await this.chatMessageRepository.save(message);
-      
+
       return ResponseDto.success(
         savedMessage,
         '',
@@ -114,8 +129,8 @@ export class ChatService {
         where: { requestCd: roomCd, status: PartnerRequestStatus.ACCEPTED }
       });
 
-      if (!partnerRequest || 
-          (partnerRequest.userCd !== userCd && partnerRequest.partnerCd !== userCd)) {
+      if (!partnerRequest ||
+        (partnerRequest.userCd !== userCd && partnerRequest.partnerCd !== userCd)) {
         return ResponseDto.error('해당 채팅방에 접근 권한이 없습니다.', 'ACCESS_DENIED');
       }
 
@@ -138,7 +153,8 @@ export class ChatService {
         senderName: msg.sender.userName,
         timestamp: msg.createdAt,
         type: msg.type,
-        fileUrl: msg.fileUrl
+        fileUrl: msg.fileUrl,
+        imageUrls: msg.imageUrls ? JSON.parse(msg.imageUrls) : undefined
       }));
 
       return ResponseDto.success(
@@ -254,10 +270,10 @@ export class ChatService {
   async markMessagesAsRead(roomCd: number, userCd: number): Promise<ApiResponse> {
     try {
       await this.chatMessageRepository.update(
-        { 
-          roomCd, 
-          senderCd: Not(userCd), 
-          isRead: false 
+        {
+          roomCd,
+          senderCd: Not(userCd),
+          isRead: false
         },
         { isRead: true }
       );

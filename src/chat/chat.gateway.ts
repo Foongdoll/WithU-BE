@@ -65,7 +65,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     console.log('사용자 로그인:', data);
     this.userSockets[data.userCd.toString()] = client.id;
-    
+
     if (data.isReconnection) {
       console.log('🔄 사용자 재연결:', data.userName);
     }
@@ -77,7 +77,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     console.log('🏠 자동 룸 재조인:', data);
-    
+
     // 룸에 조인
     client.join(String(data.roomCd));
 
@@ -93,7 +93,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 재연결인 경우 파트너에게 알림
     if (data.isReconnection) {
       const partner = await this.authService.getPartnerUserInfo(data.userCd) as User | null;
-      
+
       const reconnectMessage = {
         type: 'alarm',
         content: `🔄 파트너 ${partner?.userName}님이 다시 연결되었습니다.`,
@@ -108,7 +108,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // 재연결 완료 이벤트 전송
     client.emit('reconnectComplete', { roomCd: data.roomCd });
-    
+
     console.log('자동 룸 재조인 완료:', data.roomCd);
   }
 
@@ -118,7 +118,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     console.log('📬 밀린 메시지 요청:', data);
-    
+
     try {
       // TODO: 실제 DB에서 마지막 접속 이후 메시지 조회
       // 현재는 임시 데이터로 응답
@@ -209,15 +209,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       senderCd: number;
       content: string;
       type: 'message' | 'alarm';
+      fileUrl?: string;
+      imageUrls?: string[];
     },
     @ConnectedSocket() client: Socket,
   ) {
     let reconnect = false;
     // 룸에 연결된 모든 소켓 ID 확인
     const roomSockets = this.server.sockets.adapter.rooms.get(String(data.roomCd));
-    if (roomSockets) {
-      console.log(`룸 ${data.roomCd}의 소켓 ID들:`, Array.from(roomSockets));
-    } else {
+    if (!roomSockets) {
       // 다시 연결
       client.join(String(data.roomCd));
 
@@ -229,7 +229,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!this.roomUsers[data.roomCd].includes(userCdStr)) {
         this.roomUsers[data.roomCd].push(userCdStr);
       }
-      
+
+      this.userSockets[data.senderCd.toString()] = client.id;
+
       reconnect = true;
     }
 
@@ -238,6 +240,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sender: data.senderCd.toString(),
       content: data.content,
       type: data.type,
+      fileUrl: data.fileUrl,
+      imageUrls: data.imageUrls,
       timestamp: new Date().toISOString(),
       reconnect: reconnect
     };

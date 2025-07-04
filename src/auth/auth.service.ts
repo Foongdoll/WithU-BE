@@ -7,6 +7,7 @@ import { JwtService } from '../../src/common/jwt/JwtService';
 import * as bcrypt from 'bcrypt';
 import { Role } from './entity/role.entity';
 import { PartnerRequest, PartnerRequestStatus } from './entity/partner.entity';
+import { LoggerServiceImpl } from '../common/service/loggerService';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +17,9 @@ export class AuthService {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
     @InjectRepository(PartnerRequest)
-    private partnerRepository: Repository<PartnerRequest>,
+    private partnerRepository: Repository<PartnerRequest>,    
     private jwtService: JwtService,
+    private loggerService: LoggerServiceImpl
   ) { }
 
 
@@ -40,6 +42,8 @@ export class AuthService {
       userCd: user.userCd,
       userName: user.userName,
     });
+
+    this.loggerService.logInfo('로그인되셨습니다.', { userCd: user.userCd });
 
     return { success: true, message: '로그인되셨습니다.', data: { jwt: token } }
   }
