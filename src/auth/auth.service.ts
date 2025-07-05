@@ -210,4 +210,41 @@ export class AuthService {
     return partner;
   }
 
+  // 파트너 목록 조회 (CalendarSidebar에서 사용)
+  async getPartners(userCd: number): Promise<any> {
+    try {
+        // 내가 요청한 파트너 중 수락된 것들
+        const acceptedRequests = await this.partnerRepository.find({
+            where: { userCd, status: PartnerRequestStatus.ACCEPTED },
+            relations: ['partner']
+        });
+
+        // 나에게 요청한 파트너 중 수락된 것들  
+        const acceptedByMe = await this.partnerRepository.find({
+            where: { partnerCd: userCd, status: PartnerRequestStatus.ACCEPTED },
+            relations: ['user']
+        });
+
+        const partners = [
+            ...acceptedRequests.map(req => ({
+                id: req.partner.userCd.toString(),
+                name: req.partner.userName,
+                email: req.partner.userId + '@example.com', // 실제로는 이메일 필드가 있어야 함
+                status: 'accepted'
+            })),
+            ...acceptedByMe.map(req => ({
+                id: req.user.userCd.toString(),
+                name: req.user.userName,
+                email: req.user.userId + '@example.com',
+                status: 'accepted'
+            }))
+        ];
+
+        return { success: true, data: partners };
+    } catch (error) {
+        console.error('파트너 목록 조회 실패:', error);
+        return { success: false, message: '파트너 목록 조회에 실패했습니다.' };
+    }
+}
+
 }

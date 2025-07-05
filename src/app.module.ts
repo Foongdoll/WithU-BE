@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from './common/jwt/JwtModule';
 import { JwtFilter } from './common/jwt/JwtFilter';
 import { LoggerServiceImpl } from './common/service/loggerService';
+import { AlbumModule } from './album/album.module';
 
 @Module({
   imports: [
@@ -26,9 +27,11 @@ import { LoggerServiceImpl } from './common/service/loggerService';
       username: 'root',
       password: '1234',
       database: 'withu',     // 사용할 DB 이름
+      charset: 'utf8mb4', // 
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,     // 개발용, 운영시 false 권장
     }),
+    AlbumModule,
   ],
   controllers: [AppController],
   providers: [AppService],

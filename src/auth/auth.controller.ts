@@ -56,4 +56,10 @@ export class AuthController {
     return this.authService.getPartnerRoom(req.user.userCd);
   }
 
+  @Post('u/partners')
+  async getPartners(@Req() req: AuthRequest) {
+    const userCd = req.user.userCd;
+    return this.authService.getPartners(userCd);
+  }
+
 }
