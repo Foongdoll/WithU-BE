@@ -1,10 +1,9 @@
-import { BaseEntity } from "../../common/entity/BaseEntity";
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { User } from "../../auth/entity/user.entity";
-import { ChatMessage } from "./chat-message.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { ChatMessage } from './chat-message.entity';
+import { User } from '../../auth/entity/user.entity';
 
 @Entity()
-export class MessageReaction extends BaseEntity {
+export class MessageReaction {
   @PrimaryGeneratedColumn()
   reactionCd: number;
 
@@ -14,16 +13,21 @@ export class MessageReaction extends BaseEntity {
   @Column()
   userCd: number;
 
-  @Column()
+  @Column({ 
+    length: 10,
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_unicode_ci'
+  })
   emoji: string;
 
-  // 반응을 추가한 사용자
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userCd' })
-  user: User;
+  @CreateDateColumn()
+  createdAt: Date;
 
-  // 반응이 달린 메시지
   @ManyToOne(() => ChatMessage)
   @JoinColumn({ name: 'messageCd' })
   message: ChatMessage;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userCd' })
+  user: User;
 }

@@ -8,7 +8,6 @@ import { CalendarModule } from './calendar/calendar.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from './common/jwt/JwtModule';
 import { JwtFilter } from './common/jwt/JwtFilter';
-import { LoggerServiceImpl } from './common/service/loggerService';
 import { AlbumModule } from './album/album.module';
 
 @Module({
@@ -22,10 +21,10 @@ import { AlbumModule } from './album/album.module';
     CalendarModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: '13.124.87.223',
       port: 3306,
       username: 'root',
-      password: '1234',
+      password: 'Healim12@@@',
       database: 'withu',     // 사용할 DB 이름
       charset: 'utf8mb4', // 
       entities: [__dirname + '/**/*.entity{.ts,.js}'],

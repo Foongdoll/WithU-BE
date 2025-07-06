@@ -42,7 +42,7 @@ export class CalendarController {
 
   @Get('events/:id')
   async getEventById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Req() req: AuthRequest,
   ): Promise<CalendarEvent> {
     const userId = req.user.userCd;
@@ -52,7 +52,7 @@ export class CalendarController {
   @Put('events/:id')
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateEvent(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateEventDto: UpdateCalendarEventDto,
     @Req() req: AuthRequest,
   ): Promise<CalendarEvent> {
@@ -62,7 +62,7 @@ export class CalendarController {
 
   @Delete('events/:id')
   async deleteEvent(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Req() req: AuthRequest,
   ): Promise<{ message: string }> {
     const userId = req.user.userCd;
@@ -87,5 +87,33 @@ export class CalendarController {
   ): Promise<CalendarEvent[]> {
     const userId = req.user.userCd;
     return await this.calendarService.getUpcomingEvents(userId, limit);
+  }
+
+  @Post('anniversary')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createAnniversary(
+    @Body() createAnniversaryDto: { title: string; description?: string; date: string },
+    @Req() req: AuthRequest,
+  ): Promise<any> {
+    const userId = req.user.userCd;
+    return await this.calendarService.createAnniversary(createAnniversaryDto, userId);
+  }
+
+  @Post('share')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async shareSchedule(
+    @Body() shareScheduleDto: { title: string; description?: string; date: string; partnerId: string },
+    @Req() req: AuthRequest,
+  ): Promise<any> {
+    const userId = req.user.userCd;
+    return await this.calendarService.shareSchedule(shareScheduleDto, userId);
+  }
+
+  @Get('shared')
+  async getSharedEvents(
+    @Req() req: AuthRequest,
+  ): Promise<any> {
+    const userId = req.user.userCd;
+    return await this.calendarService.getSharedEvents(userId);
   }
 }

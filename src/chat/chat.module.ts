@@ -25,6 +25,6 @@ import { LoggerEntity } from '../common/entity/logger.entity';
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway],
-  exports: [ChatService],
+  exports: [ChatService, ChatGateway],
 })
 export class ChatModule {}

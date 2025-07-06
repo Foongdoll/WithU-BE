@@ -14,7 +14,7 @@ export class JwtFilter implements NestMiddleware {
       }
       const token = authHeader.split(' ')[1];
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'LIX/D0liAjFJYqNrcPDbPZczqkG9msRyoV9pLtukzSg=');
         (req as AuthRequest).user = decoded as AuthRequest['user'];
 
         // 요청 메서드, 경로, 데이터 로그 출력

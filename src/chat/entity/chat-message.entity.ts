@@ -21,7 +21,11 @@ export class ChatMessage extends BaseEntity {
   @Column()
   senderCd: number;
 
-  @Column({ type: 'text' })
+  @Column({ 
+    type: 'text',
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_unicode_ci'
+  })
   content: string;
 
   @Column({

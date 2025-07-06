@@ -3,7 +3,7 @@ import { LoginDto, SignupDto } from './dto/Auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
-import { JwtService } from '../../src/common/jwt/JwtService';
+import { JwtService } from '../common/jwt/JwtService';
 import * as bcrypt from 'bcrypt';
 import { Role } from './entity/role.entity';
 import { PartnerRequest, PartnerRequestStatus } from './entity/partner.entity';
@@ -246,5 +246,35 @@ export class AuthService {
         return { success: false, message: '파트너 목록 조회에 실패했습니다.' };
     }
 }
+
+  // 현재 파트너 ID 가져오기 (달력 공유용)
+  async getCurrentPartnerId(userCd: number): Promise<number | null> {
+    try {
+        // 내가 요청한 파트너 중 수락된 것
+        const acceptedRequest = await this.partnerRepository.findOne({
+            where: { userCd, status: PartnerRequestStatus.ACCEPTED },
+            relations: ['partner']
+        });
+
+        if (acceptedRequest) {
+            return acceptedRequest.partner.userCd;
+        }
+
+        // 나에게 요청한 파트너 중 수락된 것
+        const acceptedByMe = await this.partnerRepository.findOne({
+            where: { partnerCd: userCd, status: PartnerRequestStatus.ACCEPTED },
+            relations: ['user']
+        });
+
+        if (acceptedByMe) {
+            return acceptedByMe.user.userCd;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('파트너 조회 실패:', error);
+        return null;
+    }
+  }
 
 }

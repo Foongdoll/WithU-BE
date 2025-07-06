@@ -21,7 +21,8 @@ interface RoomUserMap {
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:5173', // Vite 주소
+    origin: 'http://13.124.87.223', // 배포 주소/
+    // origin: 'http://localhost:5173', // 개발 주소/
     credentials: true,
   },
 })
@@ -109,7 +110,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // 재연결 완료 이벤트 전송
     client.emit('reconnectComplete', { roomCd: data.roomCd });
 
-    console.log('자동 룸 재조인 완료:', data.roomCd);
+    console.log('자동 룸 재조인 완료:', this.server.sockets.adapter.rooms.get(String(data.roomCd)));
   }
 
   @SubscribeMessage('getMissedMessages')
@@ -172,6 +173,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { roomCd: string; userCd: number },
     @ConnectedSocket() client: Socket,
   ) {
+
+    console.log('유저 소켓 확인:', this.userSockets);
+    console.log('현재 소켓 ID:', String(data.roomCd));
+    console.log('룸 유저 확인:', this.roomUsers);
+
     client.join(String(data.roomCd));
 
     if (!this.roomUsers[data.roomCd]) {
@@ -217,6 +223,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let reconnect = false;
     // 룸에 연결된 모든 소켓 ID 확인
     const roomSockets = this.server.sockets.adapter.rooms.get(String(data.roomCd));
+    console.log('룸 소켓 확인:', roomSockets);
+    console.log('현재 소켓 ID:', String(data.roomCd));
+    console.log('유저 소켓 확인:', this.userSockets);
+    console.log('룸 유저 확인:', this.roomUsers);
     if (!roomSockets) {
       // 다시 연결
       client.join(String(data.roomCd));
@@ -278,5 +288,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     console.log('타이핑 중지:', roomCd);
     client.to(roomCd).emit('partnerStopTyping', { roomCd });
+  }
+
+  // 캘린더 알림 전송 메서드
+  sendCalendarNotification(partnerId: number, eventData: any) {
+    const partnerSocketId = this.userSockets[partnerId.toString()];
+    
+    if (partnerSocketId) {
+      const notificationData = {
+        type: 'calendar',
+        content: `새로운 공유 일정이 추가되었습니다: ${eventData.title}`,
+        eventData,
+        timestamp: new Date().toISOString(),
+      };
+
+      this.server.to(partnerSocketId).emit('calendarNotification', notificationData);
+      console.log('캘린더 알림 전송 완료:', notificationData);
+    }
   }
 }

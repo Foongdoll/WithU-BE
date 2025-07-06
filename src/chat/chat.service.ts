@@ -117,6 +117,7 @@ export class ChatService {
         'MESSAGE_SENT'
       );
     } catch (error) {
+      console.error('메시지 전송 오류:', error);
       return ResponseDto.error('메시지 전송에 실패했습니다.', 'MESSAGE_SEND_ERROR');
     }
   }

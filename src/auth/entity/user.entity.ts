@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Role } from './role.entity';
 import { BaseEntity } from '../../common/entity/BaseEntity';
+import { CalendarEvent } from '../../calendar/entity/calendar-event.entity';
 
 @Entity()
 export class User extends BaseEntity{
@@ -30,5 +31,8 @@ export class User extends BaseEntity{
   @OneToOne(() => User, (user) => user.partner, { nullable: true })
   @JoinColumn({ name: 'partnerCd' })
   partner: User;
+
+  @OneToMany(() => CalendarEvent, event => event.user)
+  calendarEvents: CalendarEvent[];
 
 }
