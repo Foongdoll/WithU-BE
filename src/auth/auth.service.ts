@@ -277,4 +277,63 @@ export class AuthService {
     }
   }
 
+  // 파트너 정보 조회
+  async getPartnerInfo(userCd: number) {
+    try {
+      // 내가 요청한 파트너 중 수락된 것
+      const acceptedRequest = await this.partnerRepository.findOne({
+        where: { userCd, status: PartnerRequestStatus.ACCEPTED },
+        relations: ['partner']
+      });
+
+      if (acceptedRequest && acceptedRequest.partner) {
+        return {
+          status: 'success',
+          data: {
+            hasPartner: true,
+            partnerName: acceptedRequest.partner.userName,
+            partnerCd: acceptedRequest.partner.userCd
+          }
+        };
+      }
+
+      // 나에게 요청한 파트너 중 수락된 것
+      const acceptedByMe = await this.partnerRepository.findOne({
+        where: { partnerCd: userCd, status: PartnerRequestStatus.ACCEPTED },
+        relations: ['user']
+      });
+
+      if (acceptedByMe && acceptedByMe.user) {
+        return {
+          status: 'success',
+          data: {
+            hasPartner: true,
+            partnerName: acceptedByMe.user.userName,
+            partnerCd: acceptedByMe.user.userCd
+          }
+        };
+      }
+
+      return {
+        status: 'success',
+        data: {
+          hasPartner: false,
+          partnerName: '',
+          partnerCd: null
+        }
+      };
+    } catch (error) {
+      console.error('파트너 정보 조회 실패:', error);
+      return {
+        status: 'error',
+        message: '파트너 정보 조회에 실패했습니다.',
+        data: {
+          hasPartner: false,
+          partnerName: '',
+          partnerCd: null
+        }
+      };
+    }
+  }
+
 }

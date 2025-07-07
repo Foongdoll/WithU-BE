@@ -21,8 +21,8 @@ interface RoomUserMap {
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://13.124.87.223', // 배포 주소/
-    // origin: 'http://localhost:5173', // 개발 주소/
+    // origin: 'http://13.124.87.223', // 배포 주소/
+    origin: 'http://localhost:5173', // 개발 주소/
     credentials: true,
   },
 })

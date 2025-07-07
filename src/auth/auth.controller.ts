@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, PartnerAddDto, SignupDto } from './dto/Auth.dto';
 import { AuthRequest } from 'src/common/interfaces/auth-request.interface';
@@ -60,6 +60,12 @@ export class AuthController {
   async getPartners(@Req() req: AuthRequest) {
     const userCd = req.user.userCd;
     return this.authService.getPartners(userCd);
+  }
+
+  @Get('u/partnerinfo')
+  async getPartnerInfo(@Req() req: AuthRequest) {
+    const userCd = req.user.userCd;
+    return this.authService.getPartnerInfo(userCd);
   }
 
 }

@@ -103,8 +103,16 @@ export class ChatController {
       const host = req.get('host'); // localhost:3000
       const baseUrl = `${protocol}://${host}`;
 
+      // 배포
+      // const uploadedFiles = files.map(file => ({
+      //   fileUrl: `http://13.124.87.223/uploads/chat/${file.filename}`, // 절대 URL로 변경
+      //   originalName: file.originalname,
+      //   size: file.size,
+      //   mimeType: file.mimetype
+      // }));
+
       const uploadedFiles = files.map(file => ({
-        fileUrl: `${baseUrl}/uploads/chat/${file.filename}`, // 절대 URL로 변경
+        fileUrl: `http://13.124.87.223/uploads/chat/${file.filename}`, // 절대 URL로 변경
         originalName: file.originalname,
         size: file.size,
         mimeType: file.mimetype

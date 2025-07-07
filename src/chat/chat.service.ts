@@ -37,10 +37,10 @@ export class ChatService {
       return ResponseDto.success(
         { roomCd: partnerRequest?.requestCd || null },
         '파트너 룸 정보를 가져왔습니다.',
-        'PARTNER_ROOM'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('파트너 룸 정보를 가져오는데 실패했습니다.', 'PARTNER_ROOM_ERROR');
+      return ResponseDto.error('파트너 룸 정보를 가져오는데 실패했습니다.', 'error');
     }
   }
 
@@ -59,7 +59,7 @@ export class ChatService {
         return ResponseDto.success(
           { partner: null },
           '파트너가 없습니다.',
-          'NO_PARTNER'
+          'error'
         );
       }
 
@@ -88,11 +88,11 @@ export class ChatService {
           }
         },
         '파트너 정보를 가져왔습니다.',
-        'PARTNER_INFO'
+        'info'
       );
     } catch (error) {
       console.log(error)
-      return ResponseDto.error('파트너 정보를 가져오는데 실패했습니다.', 'PARTNER_INFO_ERROR');
+      return ResponseDto.error('파트너 정보를 가져오는데 실패했습니다.', 'error');
     }
   }
 
@@ -114,11 +114,11 @@ export class ChatService {
       return ResponseDto.success(
         savedMessage,
         '',
-        'MESSAGE_SENT'
+        'love'
       );
     } catch (error) {
       console.error('메시지 전송 오류:', error);
-      return ResponseDto.error('메시지 전송에 실패했습니다.', 'MESSAGE_SEND_ERROR');
+      return ResponseDto.error('메시지 전송에 실패했습니다.', 'error');
     }
   }
 
@@ -161,10 +161,10 @@ export class ChatService {
       return ResponseDto.success(
         { messages: formattedMessages },
         '채팅 기록을 가져왔습니다.',
-        'CHAT_HISTORY'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('채팅 기록을 가져오는데 실패했습니다.', 'CHAT_HISTORY_ERROR');
+      return ResponseDto.error('채팅 기록을 가져오는데 실패했습니다.', 'error');
     }
   }
 
@@ -182,7 +182,7 @@ export class ChatService {
       return ResponseDto.success(
         { count },
         '읽지 않은 메시지 수를 가져왔습니다.',
-        'UNREAD_COUNT'
+        'info'
       );
     } catch (error) {
       return ResponseDto.error('읽지 않은 메시지 수를 가져오는데 실패했습니다.', 'UNREAD_COUNT_ERROR');
@@ -200,10 +200,10 @@ export class ChatService {
       return ResponseDto.success(
         { message: lastMessage?.content || '' },
         '마지막 메시지를 가져왔습니다.',
-        'LAST_MESSAGE'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('마지막 메시지를 가져오는데 실패했습니다.', 'LAST_MESSAGE_ERROR');
+      return ResponseDto.error('마지막 메시지를 가져오는데 실패했습니다.', 'error');
     }
   }
 
@@ -236,10 +236,10 @@ export class ChatService {
       return ResponseDto.success(
         reaction,
         '감정 표현을 추가했습니다.',
-        'REACTION_ADDED'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('감정 표현 추가에 실패했습니다.', 'REACTION_ADD_ERROR');
+      return ResponseDto.error('감정 표현 추가에 실패했습니다.', 'error');
     }
   }
 
@@ -260,10 +260,10 @@ export class ChatService {
       return ResponseDto.success(
         formattedReactions,
         '',
-        'MESSAGE_REACTIONS'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('감정 표현을 가져오는데 실패했습니다.', 'MESSAGE_REACTIONS_ERROR');
+      return ResponseDto.error('감정 표현을 가져오는데 실패했습니다.', 'error');
     }
   }
 
@@ -282,10 +282,10 @@ export class ChatService {
       return ResponseDto.success(
         null,
         '메시지를 읽음 처리했습니다.',
-        'MESSAGES_READ'
+        'info'
       );
     } catch (error) {
-      return ResponseDto.error('메시지 읽음 처리에 실패했습니다.', 'MESSAGES_READ_ERROR');
+      return ResponseDto.error('메시지 읽음 처리에 실패했습니다.', 'error');
     }
   }
 

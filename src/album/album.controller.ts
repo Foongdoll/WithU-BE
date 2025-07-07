@@ -10,30 +10,29 @@ import { ResponseDto } from '../common/dto/response.dto';
 
 @Controller('u/album')
 export class AlbumController {
-  constructor(private readonly albumService: AlbumService) {}
+  constructor(private readonly albumService: AlbumService) { }
+  private readonly baseUrl = `http://localhost:3000/`;
+  // private readonly baseUrl = `http://13.124.87.223`;
 
   @Post()
   create(@Body() createAlbumDto: CreateAlbumDto, @Request() req: any) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return this.albumService.create(createAlbumDto, req.user.userCd, baseUrl);
+    return this.albumService.create(createAlbumDto, req.user.userCd, this.baseUrl);
   }
 
   @Get()
   findAll(@Query() query: AlbumQueryDto, @Request() req: any) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return this.albumService.findAll(req.user.userCd, query, baseUrl);
+    return this.albumService.findAll(req.user.userCd, query, this.baseUrl);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: any) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return this.albumService.findOne(id, req.user.userCd, baseUrl);
+    return this.albumService.findOne(id, req.user.userCd, this.baseUrl);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto, @Request() req: any) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return this.albumService.update(id, updateAlbumDto, req.user.userCd, baseUrl);
+
+    return this.albumService.update(id, updateAlbumDto, req.user.userCd, this.baseUrl);
   }
 
   @Delete(':id')
@@ -84,11 +83,19 @@ export class AlbumController {
   }))
   uploadFiles(@UploadedFiles() files: Express.Multer.File[], @Request() req: any) {
     try {
-      // 환경변수에서 베이스 URL 가져오기 (배포환경 고려)      
+      // 배포
+      // const uploadedFiles = files.map(file => ({
+      //   originalName: file.originalname,
+      //   filename: file.filename,
+      //   fileUrl: `http://13.124.87.223/uploads/album/${file.filename}`,
+      //   size: file.size,
+      //   mimetype: file.mimetype,
+      // }));
+
       const uploadedFiles = files.map(file => ({
         originalName: file.originalname,
         filename: file.filename,
-        fileUrl: `http://13.124.87.223/uploads/album/${file.filename}`,
+        fileUrl: `${this.baseUrl}/uploads/album/${file.filename}`,
         size: file.size,
         mimetype: file.mimetype,
       }));
