@@ -36,6 +36,15 @@ export class CalendarEvent {
   @Column({ type: 'varchar', length: 50, default: 'event' })
   category: string;
 
+  @Column({ type: 'text', nullable: true })
+  location?: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude?: number;
+
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude?: number;
+
   @Column({
     type: 'enum',
     enum: CalendarEventType,

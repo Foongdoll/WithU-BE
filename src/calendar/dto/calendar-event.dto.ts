@@ -31,6 +31,16 @@ export class CreateCalendarEventDto {
   @IsString()
   @MaxLength(50)
   category?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  latitude?: number;
+
+  @IsOptional()
+  longitude?: number;
 }
 
 export class UpdateCalendarEventDto {
@@ -67,6 +77,16 @@ export class UpdateCalendarEventDto {
   @IsString()
   @MaxLength(50)
   category?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  latitude?: number;
+
+  @IsOptional()
+  longitude?: number;
 }
 
 export class CalendarEventQueryDto {
